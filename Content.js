@@ -1,52 +1,55 @@
-const leftControls = document.querySelector('.ytp-left-controls');
+
+
+
+const leftControls = document.querySelector('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls');
 
 function AddButton(Speed) {
-    if (!leftControls) return;
+const button = document.createElement('button');
+button.innerText = Speed + 'x';
 
-    const button = document.createElement('button');
-    button.innerText = Speed + 'x';
-    
+button.style.position = 'relative';
+button.style.height = '40px';
+button.style.width = '40px';
+button.style.fontSize = '14px';
+button.style.display = 'flex';
+button.style.alignSelf = 'center';
+button.style.alignItems = 'center';
+button.style.justifyContent = 'center';
+button.style.cursor = 'pointer';
+button.style.border = 'none';
+button.style.color = 'var(--yt-spec-text-primary-inverse)';
+button.style.fontWeight = '500';
+button.style.borderRadius = '40px';
+button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+button.style.padding = '8px 16px';
+button.style.outline = 'none';
+button.style.color = 'white';
+button.style.fontFamily = '"YouTube Noto",Roboto,Arial,Helvetica,sans-serif'
+button.style.fontSize = '14px';
+button.style.marginLeft = '4px'; // Adjust '8px' to whatever spacing looks best to you
 
-    button.style.height = '40px';
-    button.style.width = '40px';
-    button.style.display = 'flex';
-    button.style.alignItems = 'center';
-    button.style.justifyContent = 'center';
-    button.style.cursor = 'pointer';
-    button.style.border = 'none';
-    button.style.borderRadius = '40px';
-    button.style.background = 'rgba(0,0,0,.3)';
-    button.style.color = 'white';
-    button.style.marginLeft = '4px';
-    button.style.fontFamily = 'Roboto, Arial, sans-serif';
-
-    leftControls.appendChild(button);
-
-    const video = document.querySelector('video');
+leftControls.appendChild(button);
 
 
-    const resetSpeed = () => {
-        if (video) video.playbackRate = 1;
-        button.style.background = 'rgba(0,0,0,.3)';
-        window.removeEventListener("mouseup", resetSpeed);
-    };
-
-    button.addEventListener("mousedown", () => {
-        if (video) video.playbackRate = Speed;
-        button.style.background = 'rgba(255, 255, 255, 0.2)';
-        window.addEventListener("mouseup", resetSpeed);
-    });
-
-    button.addEventListener("mouseenter", () => {
-        button.style.background = 'rgba(49, 49, 49, 0.2)';
-    });
-
-    button.addEventListener("mouseleave", () => {
-        if (!video || video.playbackRate === 1) {
-            button.style.background = 'rgba(0,0,0,.3)';
-        }
-    });
+// document.querySelector('video').playbackRate = Speed;
+button.addEventListener("mousedown", () => {
+    document.querySelector('video').playbackRate = Speed;
+    button.style.background = 'rgba(255, 255, 255, 0.2)';
+});
+window.addEventListener("mouseup", () => {
+    document.querySelector('video').playbackRate = 1;
+    button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+});
+button.addEventListener("mouseenter", () => {
+    button.style.background = 'rgba(49, 49, 49, 0.2)';
+});
+button.addEventListener("mouseleave", () => {
+    button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+});
 }
+AddButton('.5');
+AddButton('3');
+AddButton('4');
+AddButton('5');
 
-// Initialize
-['.5', '3', '4', '5'].forEach(speed => AddButton(speed));
+console.log("Extension loaded");
