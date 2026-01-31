@@ -1,11 +1,14 @@
 {
     "manifest_version": 3,
-    "name": "Sensible YouTube speed controls",
-    "version": "1.0",  
+    "name": "Sensible Speed: YouTube 3x, 4x, 5x Toggle",
+    "version": "1.0",
+    "description": "Adds minimalist buttons to the YouTube player for 3x, 4x, and 5x playback speeds.",
     "content_scripts": [
         {
             "matches": ["https://www.youtube.com/*"],
-            "js": ["Content.js"]
+            "js": ["Content.js"],
+            "run_at": "document_end"
         }
-    ]
+    ],
+    "permissions": []
 }
