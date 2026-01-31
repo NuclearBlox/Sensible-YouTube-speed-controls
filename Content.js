@@ -26,7 +26,7 @@ button.style.outline = 'none';
 button.style.color = 'white';
 button.style.fontFamily = '"YouTube Noto",Roboto,Arial,Helvetica,sans-serif'
 button.style.fontSize = '14px';
-button.style.marginLeft = '4px'; // Adjust '8px' to whatever spacing looks best to you
+button.style.marginLeft = '4px';
 
 leftControls.appendChild(button);
 
