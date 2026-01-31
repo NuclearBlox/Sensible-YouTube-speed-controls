@@ -3,6 +3,11 @@
     "name": "Sensible Speed: YouTube 3x, 4x, 5x Toggle",
     "version": "1.0",
     "description": "Adds minimalist buttons to the YouTube player for 3x, 4x, and 5x playback speeds.",
+    "icons": {
+  "16": "icon16.png",
+  "48": "icon48.png",
+  "128": "icon128.png"
+},
     "content_scripts": [
         {
             "matches": ["https://www.youtube.com/*"],
@@ -10,5 +15,6 @@
             "run_at": "document_end"
         }
     ],
+    
     "permissions": []
 }
