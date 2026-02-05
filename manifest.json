@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Sensible Speed: YouTube 3x, 4x, 5x Toggle",
+    "name": "Hold to speed up: YouTube .5x, 3x, 4x, 5x Toggle",
     "version": "1.0.1",
     "description": "Adds minimalist buttons to the YouTube player for 3x, 4x, and 5x playback speeds.",
     "icons": {
