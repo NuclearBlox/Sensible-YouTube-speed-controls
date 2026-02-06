@@ -130,6 +130,7 @@ chrome.storage.local.get(['speedLocked'], (result) => {
     waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
 
     if (leftControls.querySelector('.speed-control-custom')) return;
+    
 
     AddButton(leftControls, '.5');
     AddButton(leftControls, '3');
