@@ -104,14 +104,19 @@ function lockButton(leftControls) {
         Locked = !Locked;
         if (Locked) {
             button.style.background = 'rgba(255, 255, 255, 0.2)';
+                img.src = chrome.runtime.getURL('lockFilled.png');
         } else {
             button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
             document.querySelector('video').playbackRate = 1;
+                img.src = chrome.runtime.getURL('LockIcon.png');
         }
     });
 }
 
 waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
+
+    if (leftControls.querySelector('.speed-control-custom')) return;
+
     AddButton(leftControls, '.5');
     AddButton(leftControls, '3');
     AddButton(leftControls, '4');

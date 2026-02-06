@@ -10,7 +10,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["LockIcon.png"],
+      "resources": ["LockIcon.png", "lockFilled.png"],
       "matches": ["https://www.youtube.com/*"]
     }
   ],
