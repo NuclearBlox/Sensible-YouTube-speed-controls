@@ -54,8 +54,9 @@ function AddButton(leftControls, Speed) {
         button.style.background = 'rgba(255, 255, 255, 0.2)';
     });
     window.addEventListener("mouseup", () => {
-        document.querySelector('video').playbackRate = 1;
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+        if (Locked) return;
+        document.querySelector('video').playbackRate = 1;
     });
     button.addEventListener("mouseenter", () => {
         button.style.background = 'rgba(49, 49, 49, 0.2)';
@@ -98,6 +99,16 @@ function lockButton(leftControls) {
     button.appendChild(img);
 
         leftControls.appendChild(button);
+
+    button.addEventListener("click", () => {
+        Locked = !Locked;
+        if (Locked) {
+            button.style.background = 'rgba(255, 255, 255, 0.2)';
+        } else {
+            button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+            document.querySelector('video').playbackRate = 1;
+        }
+    });
 }
 
 waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
