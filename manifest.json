@@ -1,13 +1,21 @@
 {
     "manifest_version": 3,
     "name": "Hold to speed up: YouTube .5x, 3x, 4x, 5x Toggle",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "Adds minimalist buttons to the YouTube player for 3x, 4x, and 5x playback speeds.",
     "icons": {
   "16": "icon16.png",
   "48": "icon48.png",
   "128": "icon128.png"
-},
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["LockIcon.png", "lockFilled.png"],
+      "matches": ["https://www.youtube.com/*"]
+    }
+  ],
+
     "content_scripts": [
         {
             "matches": ["https://www.youtube.com/*"],
@@ -16,5 +24,5 @@
         }
     ],
     
-    "permissions": []
+    "permissions": ["storage"]
 }
