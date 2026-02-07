@@ -88,7 +88,7 @@ function lockButton(leftControls) {
     button.style.fontFamily = '"YouTube Noto",Roboto,Arial,Helvetica,sans-serif';
     button.style.fontSize = '14px';
     button.style.marginLeft = '4px';
-
+    button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
 
 
     const img = document.createElement('img');
@@ -118,23 +118,26 @@ function lockButton(leftControls) {
                 img.src = chrome.runtime.getURL('LockIcon.png');
         }
     });
+
+        button.addEventListener("mouseenter", () => {
+        button.style.background = 'rgba(49, 49, 49, 0.2)';
+    });
+    button.addEventListener("mouseleave", () => {
+        button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+    });
 }
 
-chrome.storage.local.get(['speedLocked'], (result) => {
+chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
     Locked = result.speedLocked || false;
+    const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
 
     waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
-
-    if (leftControls.querySelector('.speed-control-custom')) return;
-    
-
-    AddButton(leftControls, '.5');
-    AddButton(leftControls, '3');
-    AddButton(leftControls, '4');
-    AddButton(leftControls, '5');
-    console.log("Speed buttons loaded");
-    lockButton(leftControls);
-    console.log("Extension loaded");
+        if (leftControls.querySelector('.speed-control-custom')) return;
+        
+        speeds.forEach(speed => AddButton(leftControls, speed));
+        
+        console.log("Speed buttons loaded");
+        lockButton(leftControls);
+        console.log("Extension loaded");
+    });
 });
-});
-
