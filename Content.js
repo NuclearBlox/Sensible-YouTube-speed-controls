@@ -94,10 +94,8 @@ function lockButton(leftControls) {
     const img = document.createElement('img');
 
     if (Locked) {
-        button.style.background = 'rgba(255, 255, 255, 0.2)';
         img.src = chrome.runtime.getURL('lockFilled.png');
     } else {
-        button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
         img.src = chrome.runtime.getURL('LockIcon.png');
     }
 
@@ -114,10 +112,8 @@ function lockButton(leftControls) {
         Locked = !Locked;
         chrome.storage.local.set({speedLocked: Locked});
         if (Locked) {
-            button.style.background = 'rgba(255, 255, 255, 0.2)';
                 img.src = chrome.runtime.getURL('lockFilled.png');
         } else {
-            button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
             document.querySelector('video').playbackRate = 1;
                 img.src = chrome.runtime.getURL('LockIcon.png');
         }
