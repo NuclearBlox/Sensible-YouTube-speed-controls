@@ -51,28 +51,37 @@ function AddButton(leftControls, Speed) {
     leftControls.appendChild(button);
 
     button.addEventListener("mousedown", () => {
-        document.querySelector('video').playbackRate = Speed;
         button.style.background = 'rgba(255, 255, 255, 0.2)';
+        
+        if (Locked) {
+            if (document.querySelector('video').playbackRate == Speed) {
+                console.log("Speed already set, resetting to normal");
+                document.querySelector('video').playbackRate = 1;
+            }else{
+                document.querySelector('video').playbackRate = Speed;
+            
+            }
 
+
+        } else {
+            document.querySelector('video').playbackRate = Speed;
+        }
     });
     window.addEventListener("mouseup", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
-        if (Locked) {
-if (document.querySelector('video').playbackRate == Speed) {
-    document.querySelector('video').playbackRate = 1;
-    } else {
-    document.querySelector('video').playbackRate = Speed;
-    }
-} else {
-    document.querySelector('video').playbackRate = 1;
-        }
-        
+        if (Locked) return;
+        document.querySelector('video').playbackRate = 1;
     });
     button.addEventListener("mouseenter", () => {
         button.style.background = 'rgba(49, 49, 49, 0.2)';
     });
     button.addEventListener("mouseleave", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+
+                if (Locked) {
+            if (document.querySelector('video').playbackRate == Speed) {
+                button.style.background = 'rgba(255, 255, 255, 0.2)';
+            }}
     });
 }
 function lockButton(leftControls) {
