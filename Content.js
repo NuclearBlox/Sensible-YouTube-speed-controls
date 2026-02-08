@@ -53,6 +53,11 @@ function AddButton(leftControls, Speed) {
     button.addEventListener("mousedown", () => {
         document.querySelector('video').playbackRate = Speed;
         button.style.background = 'rgba(255, 255, 255, 0.2)';
+        if (Locked) {
+if (document.querySelector('video').playbackRate == Speed) {
+    document.querySelector('video').playbackRate = 1;
+}
+        }
     });
     window.addEventListener("mouseup", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
