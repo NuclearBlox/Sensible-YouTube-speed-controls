@@ -77,11 +77,9 @@ function AddButton(leftControls, Speed) {
     });
     button.addEventListener("mouseleave", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
-                button.style.color = 'white';  
                 if (Locked) {
             if (document.querySelector('video').playbackRate == Speed) {
-                button.style.background = 'rgba(255, 255, 255, 0.2)';
-                button.style.color = 'black';   
+                button.style.background = 'rgba(255, 255, 255, 0.2)'; 
             }}
     });
 }
