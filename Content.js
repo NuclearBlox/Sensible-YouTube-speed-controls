@@ -245,8 +245,9 @@ function createSettingsPanel() {
 }
 
 // Add settings menu item
-const settingsMenu = document.querySelector('.ytp-panel-menu');
 
+const settingsMenu = document.querySelector('.ytp-panel-menu');
+waitForElement('.ytp-panel-menu', (settingsMenu) => {
 const newMenuItem = document.createElement('div');
 newMenuItem.className = 'ytp-menuitem';
 newMenuItem.setAttribute('role', 'menuitem');
@@ -270,3 +271,4 @@ newMenuItem.addEventListener('click', () => {
 if (settingsMenu) {
   settingsMenu.prepend(newMenuItem);
 }
+});

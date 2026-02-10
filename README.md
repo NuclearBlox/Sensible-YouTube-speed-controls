@@ -4,3 +4,4 @@ Adds speed controls to YouTube that actually make sense from a UX perspective!
 
 ![Screenshot](HoldToSpeed.png)
 ![Change speeds](ChooseSpeed.png)
+![Tucked into UI](TuckedInUI.png)
