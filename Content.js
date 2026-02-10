@@ -244,16 +244,15 @@ function createSettingsPanel() {
     });
 }
 
-// Find the settings menu container
+// Add settings menu item
 const settingsMenu = document.querySelector('.ytp-panel-menu');
 
-// Create your new menu item
 const newMenuItem = document.createElement('div');
 newMenuItem.className = 'ytp-menuitem';
 newMenuItem.setAttribute('role', 'menuitem');
 newMenuItem.setAttribute('tabindex', '0');
 
-// Build the inner structure
+
 newMenuItem.innerHTML = `
   <div class="ytp-menuitem-icon">
     <img src="${chrome.runtime.getURL('icon48.png')}" width="24" height="24" />
@@ -264,13 +263,10 @@ newMenuItem.innerHTML = `
   </div>
 `;
 
-// Add click handler
 newMenuItem.addEventListener('click', () => {
-  // Your custom functionality
   createSettingsPanel();
 });
 
-// Insert it into the menu
 if (settingsMenu) {
   settingsMenu.prepend(newMenuItem);
 }
