@@ -148,6 +148,9 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
     Locked = result.speedLocked || false;
     const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
 
+    const isDefaultSpeeds = !result.customSpeeds || 
+    (JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]));
+
     waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
         if (leftControls.querySelector('.speed-control-custom')) return;
         
@@ -156,5 +159,114 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
         console.log("Speed buttons loaded");
         lockButton(leftControls);
         console.log("Extension loaded");
+        
+if (isDefaultSpeeds) {
+    const hint = document.createElement('span');
+    hint.style.cssText = `
+        margin-left: 8px;
+        font-family: 'YouTube Noto',Roboto,Arial,Helvetica,sans-serif;
+        font-size: 14px;
+        align-self: center;
+    `;
+    hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
+    
+    leftControls.appendChild(hint);
+    
+    document.getElementById('settings-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        createSettingsPanel();
+        hint.remove();
+    });
+    
+    setTimeout(() => hint.remove(), 15000);
+}
+
     });
 });
+
+// settings!
+let settingOpen = false;
+function createSettingsPanel() {
+    if (settingOpen) return;
+    settingOpen = true;
+    const panel = document.createElement('div');
+    panel.id = 'speed-settings-panel';
+    panel.style.cssText = `
+        position: absolute;
+        bottom: 60px;
+        left: 10px;
+        background: #282828;
+        padding: 15px;
+        border-radius: 8px;
+        z-index: 9999;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+        font-family: 'YouTube Noto',Roboto,Arial,sans-serif;
+        color: white;
+    `;
+    
+    chrome.storage.local.get(['customSpeeds'], (result) => {
+        const speeds = result.customSpeeds || [0.5, 3, 4, 5];
+        
+        panel.innerHTML = `
+            <div style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">Customize Speeds</div>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                ${speeds.map((speed, i) => `
+                    <input type="number" id="inline-speed${i+1}" step="0.1" min="0.1" max="16" value="${speed}"
+                           style="width: 60px; padding: 6px; background: #181818; color: white; border: 1px solid #555; border-radius: 4px; font-size: 14px;">
+                `).join('')}
+            </div>
+            <div style="font-size: 12px; color: #ff4a4a; margin-bottom: 10px;">
+                Change a speed to stop getting the popup. You can also do this any time in the youtube settings menu!
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button id="inline-save" style="flex: 1; padding: 8px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Save</button>
+                <button id="inline-cancel" style="padding: 8px 16px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Cancel</button>
+            </div>
+        `;
+        
+        document.body.appendChild(panel);
+        
+        document.getElementById('inline-save').addEventListener('click', () => {
+            const newSpeeds = [1, 2, 3, 4].map(i => 
+                parseFloat(document.getElementById(`inline-speed${i}`).value)
+            );
+            chrome.storage.local.set({ customSpeeds: newSpeeds }, () => {
+                panel.remove();
+                location.reload();
+                    settingOpen = false;
+            });
+        });
+        
+        document.getElementById('inline-cancel').addEventListener('click', () => {
+            panel.remove();
+                settingOpen = false;
+        });
+    });
+}
+
+// Add settings menu item
+const settingsMenu = document.querySelector('.ytp-panel-menu');
+
+const newMenuItem = document.createElement('div');
+newMenuItem.className = 'ytp-menuitem';
+newMenuItem.setAttribute('role', 'menuitem');
+newMenuItem.setAttribute('tabindex', '0');
+
+
+newMenuItem.innerHTML = `
+  <div class="ytp-menuitem-icon">
+    <img src="${chrome.runtime.getURL('icon48.png')}" width="24" height="24" />
+  </div>
+  <div class="ytp-menuitem-label">Custom Speeds</div>
+  <div class="ytp-menuitem-content">
+    <div><span>Configure custom playback speeds</span></div>
+  </div>
+`;
+
+newMenuItem.addEventListener('click', () => {
+  createSettingsPanel();
+});
+
+if (settingsMenu) {
+  settingsMenu.prepend(newMenuItem);
+}
