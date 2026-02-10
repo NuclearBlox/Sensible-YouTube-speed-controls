@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Hold or Toggle YouTube Speed - Custom: .1x to 16x",
-    "version": "2.0.1",
-    "description": "Adds minimalist buttons to the YouTube player for 3x, 4x, and 5x playback speeds.",
+    "name": "Hold to speed up: YouTube .5x, 3x, 4x, 5x, custom",
+    "version": "2.0.3",
+    "description": "Adds minimalist buttons to the YouTube player for easy custom playback speeds.",
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",
