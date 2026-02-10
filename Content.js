@@ -185,7 +185,10 @@ if (isDefaultSpeeds) {
 });
 
 // settings!
+let settingOpen = false;
 function createSettingsPanel() {
+    if (settingOpen) return;
+    settingOpen = true;
     const panel = document.createElement('div');
     panel.id = 'speed-settings-panel';
     panel.style.cssText = `
@@ -212,8 +215,8 @@ function createSettingsPanel() {
                            style="width: 60px; padding: 6px; background: #181818; color: white; border: 1px solid #555; border-radius: 4px; font-size: 14px;">
                 `).join('')}
             </div>
-            <div style="font-size: 12px; color: #aaa; margin-bottom: 10px;">
-                You can also do this anytime by clicking the extension icon!
+            <div style="font-size: 12px; color: #ff4a4a; margin-bottom: 10px;">
+                Change a speed to stop getting the popup. You can also do this any time in the youtube settings menu!
             </div>
             <div style="display: flex; gap: 8px;">
                 <button id="inline-save" style="flex: 1; padding: 8px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Save</button>
@@ -230,12 +233,44 @@ function createSettingsPanel() {
             chrome.storage.local.set({ customSpeeds: newSpeeds }, () => {
                 panel.remove();
                 location.reload();
+                    settingOpen = false;
             });
         });
         
         document.getElementById('inline-cancel').addEventListener('click', () => {
             panel.remove();
+                settingOpen = false;
         });
     });
 }
 
+// Find the settings menu container
+const settingsMenu = document.querySelector('.ytp-panel-menu');
+
+// Create your new menu item
+const newMenuItem = document.createElement('div');
+newMenuItem.className = 'ytp-menuitem';
+newMenuItem.setAttribute('role', 'menuitem');
+newMenuItem.setAttribute('tabindex', '0');
+
+// Build the inner structure
+newMenuItem.innerHTML = `
+  <div class="ytp-menuitem-icon">
+    <img src="${chrome.runtime.getURL('icon48.png')}" width="24" height="24" />
+  </div>
+  <div class="ytp-menuitem-label">Custom Speeds</div>
+  <div class="ytp-menuitem-content">
+    <div><span>Configure custom playback speeds</span></div>
+  </div>
+`;
+
+// Add click handler
+newMenuItem.addEventListener('click', () => {
+  // Your custom functionality
+  createSettingsPanel();
+});
+
+// Insert it into the menu
+if (settingsMenu) {
+  settingsMenu.prepend(newMenuItem);
+}
