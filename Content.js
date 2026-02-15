@@ -49,6 +49,10 @@ function AddButton(leftControls, Speed) {
     button.style.fontSize = '14px';
     button.style.marginLeft = '4px';
 
+        button.style.pointerEvents = 'auto';
+button.style.zIndex = '9999';
+button.style.position = 'relative';
+
     leftControls.appendChild(button);
 
     button.addEventListener("mousedown", () => {
@@ -108,6 +112,9 @@ function lockButton(leftControls) {
     button.style.marginLeft = '4px';
     button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
 
+    button.style.pointerEvents = 'auto';
+button.style.zIndex = '9999';
+button.style.position = 'relative';
 
     const img = document.createElement('img');
 
@@ -145,8 +152,7 @@ function lockButton(leftControls) {
     });
 }
 
-// Main function to add buttons and lock ---------------------------------------------------------------------------
-function makePlacement(selector, element) {
+// Load speeds and lock state from storage, then initialize buttons ----- LONG VIDEOS
 chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
     Locked = result.speedLocked || false;
     const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
@@ -154,7 +160,7 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
     const isDefaultSpeeds = !result.customSpeeds || 
     (JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]));
 
-    waitForElement(selector, (leftControls) => {
+    waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
         if (leftControls.querySelector('.speed-control-custom')) return;
         
         speeds.forEach(speed => AddButton(leftControls, speed));
@@ -186,10 +192,48 @@ if (isDefaultSpeeds) {
 
     });
 });
+
+// Load speeds and lock state from storage, then initialize buttons ----- SHORT VIDEOS
+chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
+    Locked = result.speedLocked || false;
+    const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
+
+    const isDefaultSpeeds = !result.customSpeeds || 
+    (JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]));
+
+    waitForElement('#page-manager > ytd-shorts > div.navigation-container.style-scope.ytd-shorts', (leftControls) => {
+        if (leftControls.querySelector('.speed-control-custom')) return;
+        
+        speeds.forEach(speed => AddButton(leftControls, speed));
+        
+        console.log("Speed buttons loaded");
+        lockButton(leftControls);
+        console.log("Extension loaded");
+        
+if (isDefaultSpeeds) {
+    const hint = document.createElement('span');
+    hint.style.cssText = `
+        margin-left: 8px;
+        font-family: 'YouTube Noto',Roboto,Arial,Helvetica,sans-serif;
+        font-size: 14px;
+        align-self: right;
+        color: white;
+    `;
+    hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
+    
+    leftControls.appendChild(hint);
+    
+    document.getElementById('settings-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        createSettingsPanel();
+        hint.remove();
+    });
+    
+    setTimeout(() => hint.remove(), 15000);
 }
 
-makePlacement('ytd-shorts #shorts-player .ytp-left-controls');
-makePlacement('.ytp-left-controls');
+    });
+});
 
 
 
