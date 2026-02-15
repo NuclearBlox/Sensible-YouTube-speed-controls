@@ -212,13 +212,15 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
         
 if (isDefaultSpeeds) {
     const hint = document.createElement('span');
-    hint.style.cssText = `
-        margin-left: 8px;
-        font-family: 'YouTube Noto',Roboto,Arial,Helvetica,sans-serif;
-        font-size: 14px;
-        align-self: right;
-        color: white;
-    `;
+hint.style.cssText = `
+    margin-right: 8px;
+    font-family: 'YouTube Noto',Roboto,Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    color: white;
+    position: relative;
+    z-index: 9999;
+    pointer-events: auto;
+`;
     hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
     
     leftControls.appendChild(hint);
@@ -244,18 +246,20 @@ function createSettingsPanel() {
     settingOpen = true;
     const panel = document.createElement('div');
     panel.id = 'speed-settings-panel';
-    panel.style.cssText = `
-        position: absolute;
-        bottom: 60px;
-        left: 10px;
-        background: #282828;
-        padding: 15px;
-        border-radius: 8px;
-        z-index: 9999;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.8);
-        font-family: 'YouTube Noto',Roboto,Arial,sans-serif;
-        color: white;
-    `;
+panel.style.cssText = `
+    position: absolute;
+    bottom: 60px;
+    left: 10px;
+    background: #282828;
+    padding: 15px;
+    border-radius: 8px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+    font-family: 'YouTube Noto',Roboto,Arial,sans-serif;
+    color: white;
+    pointer-events: auto;
+`;
+
     
     chrome.storage.local.get(['customSpeeds'], (result) => {
         const speeds = result.customSpeeds || [0.5, 3, 4, 5];
