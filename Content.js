@@ -23,6 +23,7 @@ function waitForElement(selector, callback) {
     });
 }
 
+
 function AddButton(leftControls, Speed) {
     const button = document.createElement('button');
     button.innerText = Speed + 'x';
@@ -144,6 +145,8 @@ function lockButton(leftControls) {
     });
 }
 
+// Main function to add buttons and lock ---------------------------------------------------------------------------
+function makePlacement(selector, element) {
 chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
     Locked = result.speedLocked || false;
     const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
@@ -151,7 +154,7 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
     const isDefaultSpeeds = !result.customSpeeds || 
     (JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]));
 
-    waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
+    waitForElement(selector, (leftControls) => {
         if (leftControls.querySelector('.speed-control-custom')) return;
         
         speeds.forEach(speed => AddButton(leftControls, speed));
@@ -183,6 +186,12 @@ if (isDefaultSpeeds) {
 
     });
 });
+}
+
+makePlacement('ytd-shorts #shorts-player .ytp-left-controls');
+makePlacement('.ytp-left-controls');
+
+
 
 // settings!
 let settingOpen = false;
