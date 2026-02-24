@@ -333,12 +333,11 @@ if (settingsMenu) {
 
 
 
-// PiP support because why not
+// Also PiP support because why not
 
 function pipButton(leftControls) {
         const button = document.createElement('button');
 
-    //button.style.position = 'relative';
     button.style.height = '40px';
     button.style.width = '40px';
     button.style.fontSize = '14px';
