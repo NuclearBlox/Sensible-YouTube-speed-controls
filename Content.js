@@ -411,8 +411,16 @@ function pipButton(leftControls, runningShorts) {
 
     leftControls.appendChild(button);
 
-    button.addEventListener("click", () => {
+
   const video = document.querySelector('video');
+video.addEventListener('leavepictureinpicture', () => { // Reset icon when exiting PiP
+    img.src = chrome.runtime.getURL('pipIcon.png');
+});
+video.addEventListener('enterpictureinpicture', () => { // Change icon when entering PiP
+    img.src = chrome.runtime.getURL('pipExitIcon.png');
+});
+    // PiP toggle logic
+    button.addEventListener("click", () => {
   if (!video) return;
   
   if (document.pictureInPictureElement) {
@@ -429,7 +437,9 @@ function pipButton(leftControls, runningShorts) {
     });
     button.addEventListener("mouseleave", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
-    });
+    }); // toggle end
+
+    
 }
 
 
