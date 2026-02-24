@@ -1,5 +1,32 @@
 let Locked = false;
 
+function getActiveVideo() {
+    const videos = Array.from(document.querySelectorAll('video'));
+    if (!videos.length) return null;
+
+    // Prefer a playing video with the largest visible area
+    let best = null;
+    let bestScore = -1;
+
+    for (const v of videos) {
+        if (v.readyState === 0) continue;
+        const rect = v.getBoundingClientRect();
+        const visible = rect.width > 0 && rect.height > 0 &&
+            rect.top < window.innerHeight && rect.bottom > 0;
+        if (!visible) continue;
+
+        // Score = visible area, with bonus if actually playing
+        const area = rect.width * rect.height;
+        const score = area + (!v.paused ? 1_000_000 : 0);
+
+        if (score > bestScore) {
+            bestScore = score;
+            best = v;
+        }
+    }
+
+    return best || videos[0];
+}
 
 function waitForElement(selector, callback) {
     const element = document.querySelector(selector);
@@ -61,23 +88,23 @@ button.style.position = 'relative';
         button.style.background = 'rgba(255, 255, 255, 0.2)';
         
         if (Locked) {
-            if (document.querySelector('video').playbackRate == Speed) {
+            if (getActiveVideo().playbackRate == Speed) {
                 console.log("Speed already set, resetting to normal");
-                document.querySelector('video').playbackRate = 1;
+                getActiveVideo().playbackRate = 1;
             }else{
-                document.querySelector('video').playbackRate = Speed;
+                getActiveVideo().playbackRate = Speed;
             
             }
 
 
         } else {
-            document.querySelector('video').playbackRate = Speed;
+            getActiveVideo().playbackRate = Speed;
         }
     });
     window.addEventListener("mouseup", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
         if (Locked) return;
-        document.querySelector('video').playbackRate = 1;
+        getActiveVideo().playbackRate = 1;
     });
     button.addEventListener("mouseenter", () => {
         button.style.background = 'rgba(49, 49, 49, 0.2)';
@@ -85,7 +112,7 @@ button.style.position = 'relative';
     button.addEventListener("mouseleave", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
                 if (Locked) {
-            if (document.querySelector('video').playbackRate == Speed) {
+            if (getActiveVideo().playbackRate == Speed) {
                 button.style.background = 'rgba(255, 255, 255, 0.2)'; 
             }}
     });
@@ -144,7 +171,7 @@ button.style.position = 'relative';
         if (Locked) {
                 img.src = chrome.runtime.getURL('lockFilled.png');
         } else {
-            document.querySelector('video').playbackRate = 1;
+            getActiveVideo().playbackRate = 1;
                 img.src = chrome.runtime.getURL('LockIcon.png');
         }
     });
@@ -412,7 +439,7 @@ function pipButton(leftControls, runningShorts) {
     leftControls.appendChild(button);
 
 
-  const video = document.querySelector('video');
+  const video = getActiveVideo();
 video.addEventListener('leavepictureinpicture', () => { // Reset icon when exiting PiP
     img.src = chrome.runtime.getURL('pipIcon.png');
 });
