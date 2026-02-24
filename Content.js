@@ -241,7 +241,7 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
                     color:white;
                 `;
 
-                hhint.innerHTML = 'Customize speeds: <a href="#" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
+                hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
 
                 leftControls.appendChild(hint);
 
