@@ -26,6 +26,8 @@ function waitForElement(selector, callback) {
 
 function AddButton(leftControls, Speed) {
     const button = document.createElement('button');
+    button.classList.add("speed-control-custom");
+    
     button.innerText = Speed + 'x';
 
     button.style.position = 'relative';
@@ -89,7 +91,10 @@ button.style.position = 'relative';
     });
 }
 function lockButton(leftControls) {
+
         const button = document.createElement('button');
+
+        button.className = "speed-control-custom";
 
     button.style.position = 'relative';
     button.style.height = '40px';
@@ -167,6 +172,8 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
         
         console.log("Speed buttons loaded");
         lockButton(leftControls);
+        pipButton(leftControls, false);
+
         console.log("Extension loaded");
         
 if (isDefaultSpeeds) {
@@ -208,8 +215,14 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
         
         console.log("Speed buttons loaded");
         lockButton(leftControls);
+        pipButton(leftControls, true);
+
+console.log("PiP button loaded");
         console.log("Extension loaded");
         
+
+
+
 if (isDefaultSpeeds) {
     const hint = document.createElement('span');
 hint.style.cssText = `
@@ -335,9 +348,12 @@ if (settingsMenu) {
 
 // Also PiP support because why not
 
-function pipButton(leftControls) {
+function pipButton(leftControls, runningShorts) {
+    if (leftControls.querySelector('.pip-toggle-button'))
+    return;
         const button = document.createElement('button');
-
+        button.className = 'pip-toggle-button';
+        button.classList.add("speed-control-custom");
     button.style.height = '40px';
     button.style.width = '40px';
     button.style.fontSize = '14px';
@@ -357,13 +373,19 @@ function pipButton(leftControls) {
     button.style.fontSize = '14px';
     button.style.marginLeft = '4px';
     button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
-
+    button.style.zIndex = '9999';
     button.style.pointerEvents = 'auto';
-button.style.zIndex = '9999';
-button.style.position = 'absolute';
-button.style.bottom = '120%';
-button.style.left = '16px';
-button.style.transform = 'translateX(-50%)';
+    if (runningShorts == true) {
+        button.style.position = 'relative';
+        button.style.bottom = '0';
+        button.style.left = '0';
+        button.style.transform = 'none';
+    } else {
+    button.style.position = 'absolute';
+    button.style.bottom = '120%';
+    button.style.left = '16px';
+        button.style.transform = 'translateX(-50%)';
+    }
 
     const img = document.createElement('img');
 
@@ -398,7 +420,3 @@ button.style.transform = 'translateX(-50%)';
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
     });
 }
-
-
-
-pipButton(document.querySelector('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls'));
