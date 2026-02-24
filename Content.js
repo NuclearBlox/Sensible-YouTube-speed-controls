@@ -363,7 +363,7 @@ function pipButton(leftControls) {
 button.style.zIndex = '9999';
 button.style.position = 'absolute';
 button.style.bottom = '120%';
-button.style.left = '1%';
+button.style.left = '16px';
 button.style.transform = 'translateX(-50%)';
 
     const img = document.createElement('img');
@@ -380,12 +380,16 @@ button.style.transform = 'translateX(-50%)';
     leftControls.appendChild(button);
 
     button.addEventListener("click", () => {
-
-        const video = document.querySelector('video');
-        if (video) {
-        video.requestPictureInPicture();
-}
-
+  const video = document.querySelector('video');
+  if (!video) return;
+  
+  if (document.pictureInPictureElement) {
+    document.exitPictureInPicture();
+    img.src = chrome.runtime.getURL('pipIcon.png');
+  } else {
+    video.requestPictureInPicture();
+        img.src = chrome.runtime.getURL('pipExitIcon.png');
+  }
     });
 
         button.addEventListener("mouseenter", () => {
