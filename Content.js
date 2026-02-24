@@ -329,3 +329,73 @@ if (settingsMenu) {
   settingsMenu.prepend(newMenuItem);
 }
 });
+
+
+
+
+// PiP support because why not
+
+function pipButton(leftControls) {
+        const button = document.createElement('button');
+
+    //button.style.position = 'relative';
+    button.style.height = '40px';
+    button.style.width = '40px';
+    button.style.fontSize = '14px';
+    button.style.display = 'flex';
+    button.style.alignSelf = 'center';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    button.style.cursor = 'pointer';
+    button.style.border = 'none';
+    button.style.color = 'var(--yt-spec-text-primary-inverse)';
+    button.style.fontWeight = '500';
+    button.style.borderRadius = '40px';
+    button.style.padding = '8px 16px';
+    button.style.outline = 'none';
+    button.style.color = 'white';
+    button.style.fontFamily = '"YouTube Noto",Roboto,Arial,Helvetica,sans-serif';
+    button.style.fontSize = '14px';
+    button.style.marginLeft = '4px';
+    button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+
+    button.style.pointerEvents = 'auto';
+button.style.zIndex = '9999';
+button.style.position = 'absolute';
+button.style.bottom = '120%';
+button.style.left = '1%';
+button.style.transform = 'translateX(-50%)';
+
+    const img = document.createElement('img');
+
+        img.src = chrome.runtime.getURL('pipIcon.png');
+
+
+
+    img.style.width = '20px';
+    img.style.height = '20px';
+
+    button.appendChild(img);
+
+    leftControls.appendChild(button);
+
+    button.addEventListener("click", () => {
+
+        const video = document.querySelector('video');
+        if (video) {
+        video.requestPictureInPicture();
+}
+
+    });
+
+        button.addEventListener("mouseenter", () => {
+        button.style.background = 'rgba(49, 49, 49, 0.2)';
+    });
+    button.addEventListener("mouseleave", () => {
+        button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+    });
+}
+
+
+
+pipButton(document.querySelector('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls'));
