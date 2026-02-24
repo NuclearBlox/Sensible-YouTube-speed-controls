@@ -223,8 +223,8 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
                     align-self:center;
                 `;
 
-                hint.innerHTML =
-                    'Customize speeds: <a href="#" id="settings-link">Click here</a>';
+hint.innerHTML =
+    'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
 
                 leftControls.appendChild(hint);
 
@@ -439,15 +439,16 @@ function pipButton(leftControls, runningShorts) {
     leftControls.appendChild(button);
 
 
-  const video = getActiveVideo();
-video.addEventListener('leavepictureinpicture', () => { // Reset icon when exiting PiP
+
+document.addEventListener('leavepictureinpicture', () => {
     img.src = chrome.runtime.getURL('pipIcon.png');
 });
-video.addEventListener('enterpictureinpicture', () => { // Change icon when entering PiP
+document.addEventListener('enterpictureinpicture', () => {
     img.src = chrome.runtime.getURL('pipExitIcon.png');
 });
     // PiP toggle logic
     button.addEventListener("click", () => {
+    const video = getActiveVideo();
   if (!video) return;
   
   if (document.pictureInPictureElement) {
