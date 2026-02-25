@@ -101,11 +101,6 @@ button.style.position = 'relative';
             getActiveVideo().playbackRate = Speed;
         }
     });
-    window.addEventListener("mouseup", () => {
-        button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
-        if (Locked) return;
-        getActiveVideo().playbackRate = 1;
-    });
     button.addEventListener("mouseenter", () => {
         button.style.background = 'rgba(49, 49, 49, 0.2)';
     });
@@ -117,6 +112,17 @@ button.style.position = 'relative';
             }}
     });
 }
+
+window.addEventListener("mouseup", () => {
+    document.querySelectorAll('.speed-control-custom').forEach(btn => {
+        btn.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
+    });
+    if (Locked) return;
+    const video = getActiveVideo();
+    if (video) video.playbackRate = 1;
+}); // Reset speed on mouse up anywhere, but only if not locked
+
+
 function lockButton(leftControls) {
 
         const button = document.createElement('button');
