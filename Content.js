@@ -1,5 +1,32 @@
 let Locked = false;
 
+function getActiveVideo() {
+    const videos = Array.from(document.querySelectorAll('video'));
+    if (!videos.length) return null;
+
+    // Prefer a playing video with the largest visible area
+    let best = null;
+    let bestScore = -1;
+
+    for (const v of videos) {
+        if (v.readyState === 0) continue;
+        const rect = v.getBoundingClientRect();
+        const visible = rect.width > 0 && rect.height > 0 &&
+            rect.top < window.innerHeight && rect.bottom > 0;
+        if (!visible) continue;
+
+        // Score = visible area, with bonus if actually playing
+        const area = rect.width * rect.height;
+        const score = area + (!v.paused ? 1_000_000 : 0);
+
+        if (score > bestScore) {
+            bestScore = score;
+            best = v;
+        }
+    }
+
+    return best || videos[0];
+}
 
 function waitForElement(selector, callback) {
     const element = document.querySelector(selector);
@@ -61,23 +88,23 @@ button.style.position = 'relative';
         button.style.background = 'rgba(255, 255, 255, 0.2)';
         
         if (Locked) {
-            if (document.querySelector('video').playbackRate == Speed) {
+            if (getActiveVideo().playbackRate == Speed) {
                 console.log("Speed already set, resetting to normal");
-                document.querySelector('video').playbackRate = 1;
+                getActiveVideo().playbackRate = 1;
             }else{
-                document.querySelector('video').playbackRate = Speed;
+                getActiveVideo().playbackRate = Speed;
             
             }
 
 
         } else {
-            document.querySelector('video').playbackRate = Speed;
+            getActiveVideo().playbackRate = Speed;
         }
     });
     window.addEventListener("mouseup", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
         if (Locked) return;
-        document.querySelector('video').playbackRate = 1;
+        getActiveVideo().playbackRate = 1;
     });
     button.addEventListener("mouseenter", () => {
         button.style.background = 'rgba(49, 49, 49, 0.2)';
@@ -85,7 +112,7 @@ button.style.position = 'relative';
     button.addEventListener("mouseleave", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
                 if (Locked) {
-            if (document.querySelector('video').playbackRate == Speed) {
+            if (getActiveVideo().playbackRate == Speed) {
                 button.style.background = 'rgba(255, 255, 255, 0.2)'; 
             }}
     });
@@ -144,7 +171,7 @@ button.style.position = 'relative';
         if (Locked) {
                 img.src = chrome.runtime.getURL('lockFilled.png');
         } else {
-            document.querySelector('video').playbackRate = 1;
+            getActiveVideo().playbackRate = 1;
                 img.src = chrome.runtime.getURL('LockIcon.png');
         }
     });
@@ -157,99 +184,110 @@ button.style.position = 'relative';
     });
 }
 
-// Load speeds and lock state from storage, then initialize buttons ----- LONG VIDEOS
+function initButtons() {
+
 chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
+
     Locked = result.speedLocked || false;
-    const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
 
-    const isDefaultSpeeds = !result.customSpeeds || 
-    (JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]));
+    const speeds = result.customSpeeds || [0.5, 3, 4, 5];
 
-    waitForElement('#movie_player > div.ytp-chrome-bottom > div.ytp-chrome-controls > div.ytp-left-controls', (leftControls) => {
-        if (leftControls.querySelector('.speed-control-custom')) return;
-        
-        speeds.forEach(speed => AddButton(leftControls, speed));
-        
-        console.log("Speed buttons loaded");
-        lockButton(leftControls);
-        pipButton(leftControls, false);
+    const isDefaultSpeeds =
+        !result.customSpeeds ||
+        JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]);
 
-        console.log("Extension loaded");
-        
-if (isDefaultSpeeds) {
-    const hint = document.createElement('span');
-    hint.style.cssText = `
-        margin-left: 8px;
-        font-family: 'YouTube Noto',Roboto,Arial,Helvetica,sans-serif;
-        font-size: 14px;
-        align-self: center;
-    `;
-    hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
-    
-    leftControls.appendChild(hint);
-    
-    document.getElementById('settings-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        createSettingsPanel();
-        hint.remove();
-    });
-    
-    setTimeout(() => hint.remove(), 15000);
-}
 
-    });
+    // LONG VIDEOS
+    waitForElement(
+        '#movie_player .ytp-left-controls',
+        (leftControls) => {
+
+            if (leftControls.querySelector('.speed-control-custom'))
+                return;
+
+            speeds.forEach(speed =>
+                AddButton(leftControls, speed)
+            );
+
+            lockButton(leftControls);
+            pipButton(leftControls, false);
+
+
+            if (isDefaultSpeeds) {
+
+                const hint = document.createElement('span');
+
+                hint.style.cssText = `
+                    margin-left:8px;
+                    font-size:14px;
+                    align-self:center;
+                `;
+
+hint.innerHTML =
+    'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
+
+                leftControls.appendChild(hint);
+
+                hint.onclick = (e) => {
+                    e.preventDefault();
+                    createSettingsPanel();
+                    hint.remove();
+                };
+
+                setTimeout(()=>hint.remove(),15000);
+
+            }
+
+        }
+    );
+
+
+    // SHORTS
+    waitForElement(
+        '#page-manager ytd-shorts .navigation-container',
+        (leftControls) => {
+
+            if (leftControls.querySelector('.speed-control-custom'))
+                return;
+
+            speeds.forEach(speed =>
+                AddButton(leftControls, speed)
+            );
+
+            lockButton(leftControls);
+            pipButton(leftControls, true);
+
+
+            if (isDefaultSpeeds) {
+
+                const hint = document.createElement('span');
+
+                hint.style.cssText = `
+                    margin-right:8px;
+                    font-size:14px;
+                    color:white;
+                `;
+
+                hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
+
+                leftControls.appendChild(hint);
+
+                hint.onclick = (e)=>{
+                    e.preventDefault();
+                    createSettingsPanel();
+                    hint.remove();
+                };
+
+                setTimeout(()=>hint.remove(),15000);
+
+            }
+
+        }
+    );
+
+
 });
-
-// Load speeds and lock state from storage, then initialize buttons ----- SHORT VIDEOS
-chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
-    Locked = result.speedLocked || false;
-    const speeds = result.customSpeeds || [0.5, 3, 4, 5]; // defaults
-
-    const isDefaultSpeeds = !result.customSpeeds || 
-    (JSON.stringify(speeds) === JSON.stringify([0.5, 3, 4, 5]));
-
-    waitForElement('#page-manager > ytd-shorts > div.navigation-container.style-scope.ytd-shorts', (leftControls) => {
-        if (leftControls.querySelector('.speed-control-custom')) return;
-        
-        speeds.forEach(speed => AddButton(leftControls, speed));
-        
-        console.log("Speed buttons loaded");
-        lockButton(leftControls);
-        pipButton(leftControls, true);
-
-console.log("PiP button loaded");
-        console.log("Extension loaded");
-        
-
-
-
-if (isDefaultSpeeds) {
-    const hint = document.createElement('span');
-hint.style.cssText = `
-    margin-right: 8px;
-    font-family: 'YouTube Noto',Roboto,Arial,Helvetica,sans-serif;
-    font-size: 14px;
-    color: white;
-    position: relative;
-    z-index: 9999;
-    pointer-events: auto;
-`;
-    hint.innerHTML = 'Customize speeds: <a href="#" id="settings-link" style="color: #3ea6ff; text-decoration: none; cursor: pointer;">Click here</a>';
-    
-    leftControls.appendChild(hint);
-    
-    document.getElementById('settings-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        createSettingsPanel();
-        hint.remove();
-    });
-    
-    setTimeout(() => hint.remove(), 15000);
 }
-
-    });
-});
-
 
 
 // settings!
@@ -400,8 +438,17 @@ function pipButton(leftControls, runningShorts) {
 
     leftControls.appendChild(button);
 
+
+
+document.addEventListener('leavepictureinpicture', () => {
+    img.src = chrome.runtime.getURL('pipIcon.png');
+});
+document.addEventListener('enterpictureinpicture', () => {
+    img.src = chrome.runtime.getURL('pipExitIcon.png');
+});
+    // PiP toggle logic
     button.addEventListener("click", () => {
-  const video = document.querySelector('video');
+    const video = getActiveVideo();
   if (!video) return;
   
   if (document.pictureInPictureElement) {
@@ -418,5 +465,17 @@ function pipButton(leftControls, runningShorts) {
     });
     button.addEventListener("mouseleave", () => {
         button.style.background = 'var(--yt-spec-overlay-background-medium-light,rgba(0,0,0,.3))';
-    });
+    }); // toggle end
+
+    
 }
+
+
+
+// Initialize buttons on page load
+initButtons();
+
+document.addEventListener(
+    'yt-navigate-finish',
+    initButtons
+);
