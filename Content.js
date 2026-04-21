@@ -192,9 +192,10 @@ button.style.position = 'relative';
 
 function initButtons() {
 
-chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
+chrome.storage.local.get(['speedLocked', 'customSpeeds', 'autoPip'], (result) => {
 
     Locked = result.speedLocked || false;
+    const autoPip = result.autoPip !== false;
 
     const speeds = result.customSpeeds || [0.5, 3, 4, 5];
 
@@ -217,7 +218,9 @@ chrome.storage.local.get(['speedLocked', 'customSpeeds'], (result) => {
 
             lockButton(leftControls);
             pipButton(leftControls, false);
-
+        waitForElement('#movie_player video', (video) => {
+            if (autoPip) attachAutoPip(video);
+        });
 
             if (isDefaultSpeeds) {
 
@@ -318,38 +321,47 @@ panel.style.cssText = `
 `;
 
     
-    chrome.storage.local.get(['customSpeeds'], (result) => {
-        const speeds = result.customSpeeds || [0.5, 3, 4, 5];
-        
-        panel.innerHTML = `
-            <div style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">Customize Speeds</div>
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                ${speeds.map((speed, i) => `
-                    <input type="number" id="inline-speed${i+1}" step="0.1" min="0.1" max="16" value="${speed}"
-                           style="width: 60px; padding: 6px; background: #181818; color: white; border: 1px solid #555; border-radius: 4px; font-size: 14px;">
-                `).join('')}
-            </div>
-            <div style="font-size: 12px; color: #ff4a4a; margin-bottom: 10px;">
-                Change a speed to stop getting the popup. You can also do this any time in the youtube settings menu!
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <button id="inline-save" style="flex: 1; padding: 8px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Save</button>
-                <button id="inline-cancel" style="padding: 8px 16px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Cancel</button>
-            </div>
-        `;
-        
-        document.body.appendChild(panel);
-        
-        document.getElementById('inline-save').addEventListener('click', () => {
-            const newSpeeds = [1, 2, 3, 4].map(i => 
-                parseFloat(document.getElementById(`inline-speed${i}`).value)
-            );
-            chrome.storage.local.set({ customSpeeds: newSpeeds }, () => {
-                panel.remove();
-                location.reload();
-                    settingOpen = false;
-            });
+chrome.storage.local.get(['customSpeeds', 'autoPip'], (result) => {
+    const speeds = result.customSpeeds || [0.5, 3, 4, 5];
+    const autoPip = result.autoPip !== false;
+
+    panel.innerHTML = `
+        <div style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">Customize Speeds</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            ${speeds.map((speed, i) => `
+                <input type="number" id="inline-speed${i+1}" step="0.1" min="0.1" max="16" value="${speed}"
+                       style="width: 60px; padding: 6px; background: #181818; color: white; border: 1px solid #555; border-radius: 4px; font-size: 14px;">
+            `).join('')}
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <input type="checkbox" id="auto-pip-toggle" ${autoPip ? 'checked' : ''}
+                   style="width: 16px; height: 16px; cursor: pointer;">
+            <label for="auto-pip-toggle" style="font-size: 14px; cursor: pointer;">
+                Auto picture-in-picture when scrolling away
+            </label>
+        </div>
+        <div style="font-size: 12px; color: #ff4a4a; margin-bottom: 10px;">
+            Change a speed to stop getting the popup. You can also do this any time in the youtube settings menu!
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button id="inline-save" style="flex: 1; padding: 8px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Save</button>
+            <button id="inline-cancel" style="padding: 8px 16px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Cancel</button>
+        </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    document.getElementById('inline-save').addEventListener('click', () => {
+        const newSpeeds = [1, 2, 3, 4].map(i =>
+            parseFloat(document.getElementById(`inline-speed${i}`).value)
+        );
+        const newAutoPip = document.getElementById('auto-pip-toggle').checked;
+        chrome.storage.local.set({ customSpeeds: newSpeeds, autoPip: newAutoPip }, () => {
+            panel.remove();
+            location.reload();
+            settingOpen = false;
         });
+    });
         
         document.getElementById('inline-cancel').addEventListener('click', () => {
             panel.remove();
@@ -475,8 +487,84 @@ document.addEventListener('enterpictureinpicture', () => {
 
     
 }
+let pipObserver = null;
 
+function attachAutoPip(video) {
+    if (pipObserver) pipObserver.disconnect();
 
+    const observe = () => {
+        if (pipObserver) pipObserver.disconnect();
+        pipObserver = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting && !document.pictureInPictureElement) {
+                    video.requestPictureInPicture().catch(() => {});
+                } else if (entry.isIntersecting && document.pictureInPictureElement === video) {
+                    document.exitPictureInPicture().catch(() => {});
+                }
+            }
+        }, { threshold: 0.5 });
+        pipObserver.observe(video);
+    };
+
+    if (video.played.length > 0) {
+        // Already played some frames, good to go
+        observe();
+    } else {
+        // Wait until it actually has
+        video.addEventListener('playing', observe, { once: true });
+    }
+}
+
+waitForElement('ytd-comments-header-renderer #additional-section', (section) => {
+    if (section.querySelector('.pip-comments-button')) return;
+
+    const button = document.createElement('button');
+    button.className = 'pip-comments-button';
+    button.style.cssText = `
+        height: 36px;
+        padding: 0 16px;
+        margin-left: 8px;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        border: none;
+        border-radius: 18px;
+        background: var(--yt-spec-badge-chip-background);
+        color: var(--yt-spec-text-primary);
+        font-family: "YouTube Noto",Roboto,Arial,sans-serif;
+        font-weight: 500;
+        vertical-align: middle;
+    `;
+
+    const img = document.createElement('img');
+    img.src = chrome.runtime.getURL('pipIcon.png');
+    img.style.cssText = 'width:18px; height:18px;';
+    button.appendChild(img);
+    button.appendChild(document.createTextNode('Picture in Picture'));
+
+    document.addEventListener('leavepictureinpicture', () => {
+        img.src = chrome.runtime.getURL('pipIcon.png');
+        button.lastChild.textContent = 'Picture in Picture';
+    });
+    document.addEventListener('enterpictureinpicture', () => {
+        img.src = chrome.runtime.getURL('pipExitIcon.png');
+        button.lastChild.textContent = 'Exit Picture in Picture';
+    });
+
+    button.addEventListener('click', () => {
+        const video = getActiveVideo();
+        if (!video) return;
+        if (document.pictureInPictureElement) {
+            document.exitPictureInPicture();
+        } else {
+            video.requestPictureInPicture();
+        }
+    });
+
+    section.appendChild(button);
+});
 
 // Initialize buttons on page load
 initButtons();
