@@ -532,7 +532,7 @@ waitForElement('ytd-comments-header-renderer #additional-section', (section) => 
         border: none;
         border-radius: 18px;
         background: var(--yt-spec-badge-chip-background);
-        color: var(--yt-spec-text-primary);
+        color: white;
         font-family: "YouTube Noto",Roboto,Arial,sans-serif;
         font-weight: 500;
         vertical-align: middle;
